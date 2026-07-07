@@ -1,0 +1,13 @@
+import { IsString, IsOptional, IsEmail, IsNumber, Min } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+
+export class CreateSupplierDto {
+  @ApiProperty() @IsString() name: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() contactPerson?: string;
+  @ApiPropertyOptional() @IsOptional() @IsEmail() email?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() phone?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() address?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() gstNumber?: string;
+  @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(1) avgLeadDays?: number;
+  @ApiPropertyOptional() @IsOptional() @IsString() notes?: string;
+}
