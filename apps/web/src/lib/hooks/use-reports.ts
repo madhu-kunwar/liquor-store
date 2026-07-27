@@ -21,6 +21,14 @@ export function useSalesSummary(dateFrom: string, dateTo: string) {
   });
 }
 
+export function useSalesAudit(dateFrom: string, dateTo: string) {
+  return useQuery({
+    queryKey: ["reports", "sales-audit", dateFrom, dateTo],
+    queryFn: () => api.get(`/reports/sales-audit?dateFrom=${dateFrom}&dateTo=${dateTo}`),
+    enabled: !!(dateFrom && dateTo),
+  });
+}
+
 export function useTopSellers(dateFrom?: string, dateTo?: string, limit = 10) {
   return useQuery({
     queryKey: ["reports", "top-sellers", dateFrom, dateTo, limit],

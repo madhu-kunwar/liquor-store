@@ -15,6 +15,7 @@ export class ReportsController {
   @Get("low-stock") lowStock() { return this.reportsService.lowStockReport(); }
   @Get("dead-stock") deadStock(@Query() query: DeadStockQueryDto) { return this.reportsService.deadStockReport(query.days); }
   @Get("sales-summary") salesSummary(@Query() query: ReportDateRangeDto) { return this.reportsService.salesSummary(query.dateFrom, query.dateTo); }
+  @Get("sales-audit") salesAudit(@Query() query: ReportDateRangeDto) { return this.reportsService.salesAudit(query.dateFrom, query.dateTo); }
   @Get("stock-movements") stockMovements(@Query() query: ReportDateRangeDto) { return this.reportsService.stockMovementReport(query.dateFrom, query.dateTo); }
   @Get("top-sellers") topSellers(@Query() query: ReportDateRangeDto, @Query("limit") limit?: string) { return this.reportsService.topSellers(query.dateFrom, query.dateTo, limit ? Number(limit) : 10); }
 }

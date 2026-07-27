@@ -115,6 +115,56 @@ export class ReportsService {
     });
   }
 
+  // Full line-item audit trail — every sale item in the range, including voided sales
+  async salesAudit(dateFrom?: string, dateTo?: string) {
+    const where: Record<string, unknown> = {};
+    if (dateFrom || dateTo) {
+      where.createdAt = {
+        ...(dateFrom && { gte: new Date(dateFrom) }),
+        ...(dateTo && { lte: new Date(dateTo + "T23:59:59.999Z") }),
+      };
+    }
+
+    const sales = await this.prisma.sale.findMany({
+      where: where as any,
+      include: {
+        items: { include: { variant: { include: { product: { include: { category: true } } } } } },
+        createdBy: { select: { id: true, name: true, email: true } },
+        customer: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return sales.flatMap((s) =>
+      s.items.map((i) => {
+        const cost = Number((i as any).costAtSale ?? i.variant.costPrice);
+        const revenue = Number(i.totalPrice);
+        return {
+          saleNumber: s.saleNumber,
+          date: s.createdAt,
+          cashier: s.createdBy?.name ?? "",
+          cashierEmail: s.createdBy?.email ?? "",
+          customer: s.customer?.name ?? "Walk-in",
+          paymentType: s.paymentType,
+          product: i.variant.product.name,
+          sku: i.variant.product.sku,
+          category: i.variant.product.category.name,
+          variant: i.variant.size ?? i.variant.unit,
+          quantity: i.quantity,
+          unitPrice: Number(i.unitPrice),
+          lineDiscount: Number(i.discountAmount),
+          lineTotal: revenue,
+          costAtSale: cost,
+          lineProfit: revenue - cost * i.quantity,
+          saleDiscount: Number(s.discountAmount),
+          saleTotal: Number(s.totalAmount),
+          isVoided: s.isVoided,
+          voidReason: s.voidReason ?? "",
+        };
+      })
+    );
+  }
+
   // BUG-05: dateFrom/dateTo now optional
   async stockMovementReport(dateFrom?: string, dateTo?: string) {
     const where: Record<string, unknown> = {};
